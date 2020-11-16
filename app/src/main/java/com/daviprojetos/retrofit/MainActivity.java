@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private Retrofit retrofit;
     //private List<Foto> listaFotos = new ArrayList<>();
     private List<Postagem> listaPostagem = new ArrayList<>();
+    private DataService service;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,21 +43,101 @@ public class MainActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
+        service = retrofit.create(DataService.class);
+
         botaoRecuperar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //recuperarCEPRetrofit();
-                recuperarListaRetrofit();
+                //recuperarListaRetrofit();
+                //salvarPostagem();
+                //atualizarPostagem();
+                removerPostagem();
 
             }
         });
 
     }
 
+    private void removerPostagem(){
+        Call<Void> call = service.removerPostagem(2);//Simulando a remoção do id 2
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if(response.isSuccessful()){
+                    textoResultado.setText("Status: "+response.code());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+
+            }
+        });
+
+    }
+
+    private void atualizarPostagem(){
+        //Postagem postagem = new Postagem("1234",null,"Corpo postagem");
+        //Call<Postagem> call = service.atualizarPostagem(2,postagem);
+        Postagem postagem = new Postagem();
+        postagem.setBody("Corpo da postagem alterado");
+
+        Call<Postagem> call = service.atualizarPostagemPatch(2,postagem);
+        call.enqueue(new Callback<Postagem>() {
+            @Override
+            public void onResponse(Call<Postagem> call, Response<Postagem> response) {
+
+                if(response.isSuccessful()){
+                    Postagem postagemResposta = response.body();
+                    textoResultado.setText(
+                            "Status: "+ response.code()+
+                                    " id: "+postagemResposta.getId()+
+                                    " userId: "+postagemResposta.getUserId()+
+                                    " titulo: "+postagemResposta.getTitle()+
+                                    " body: "+postagemResposta.getBody()
+
+                    );
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<Postagem> call, Throwable t) {
+
+            }
+        });
+
+
+    }
+
+    private void salvarPostagem(){
+        //Configurar objeto postagem
+        //Postagem postagem = new Postagem("1234","Título Postagem!","Corpo postagem");
+
+        //Recupera o serviço e salva postagem
+        Call<Postagem> call = service.salvarPostagem("1234","Título Postagem!","Corpo postagem");
+
+        call.enqueue(new Callback<Postagem>() {
+            @Override
+            public void onResponse(Call<Postagem> call, Response<Postagem> response) {
+                if(response.isSuccessful()){
+                    Postagem postagemResposta = response.body();
+                    textoResultado.setText(
+                            "Código: "+ response.code()+
+                            " id: "+postagemResposta.getId()+
+                            " Título: "+postagemResposta.getTitle());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Postagem> call, Throwable t) {
+
+            }
+        });
+    }
 
     private void recuperarListaRetrofit(){
-
-        DataService service = retrofit.create(DataService.class);
         //Call<List<Foto>> call = service.recuperarFotos();
         Call<List<Postagem>> call = service.recuperarPostagens();
 

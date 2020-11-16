@@ -3,6 +3,15 @@ package com.daviprojetos.retrofit.model;
 public class Postagem {
     private String userId,id,title,body;
 
+    public Postagem() {
+    }
+
+    public Postagem(String userId, String title, String body) {
+        this.userId = userId;
+        this.title = title;
+        this.body = body;
+    }
+
     public String getUserId() {
         return userId;
     }
